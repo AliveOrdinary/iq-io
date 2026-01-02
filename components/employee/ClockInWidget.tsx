@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { clockIn, clockOut } from '@/app/employee/actions'
 import { calculateDistance, Coordinates } from '@/lib/geolocation'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/Toast'
 
 type ClockInWidgetProps = {
   currentEntry: { id: string; clock_in: string } | null
@@ -15,6 +16,7 @@ export default function ClockInWidget({ currentEntry, geofence }: ClockInWidgetP
   const [distance, setDistance] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -31,7 +33,7 @@ export default function ClockInWidget({ currentEntry, geofence }: ClockInWidgetP
           })
           setDistance(d)
         },
-        (err) => {
+        () => {
           setError('Location access denied. Please enable location to clock in.')
         },
         { enableHighAccuracy: true }
@@ -49,10 +51,13 @@ export default function ClockInWidget({ currentEntry, geofence }: ClockInWidgetP
     setLoading(true)
     try {
       const res = await clockIn(coords.latitude, coords.longitude)
-      if (res.error) alert(res.error)
-    } catch (e) {
-      alert('An unexpected error occurred')
-      console.error(e)
+      if (res.error) {
+        showToast(res.error, 'error')
+      } else {
+        showToast('Clocked in successfully!', 'success')
+      }
+    } catch {
+      showToast('An unexpected error occurred', 'error')
     } finally {
       setLoading(false)
     }
@@ -62,12 +67,14 @@ export default function ClockInWidget({ currentEntry, geofence }: ClockInWidgetP
     if (!currentEntry) return
     setLoading(true)
     try {
-      console.log('Attempting clock out for:', currentEntry.id)
       const res = await clockOut(currentEntry.id)
-      if (res.error) alert(res.error)
-    } catch (e) {
-      alert('An unexpected error occurred')
-      console.error(e)
+      if (res.error) {
+        showToast(res.error, 'error')
+      } else {
+        showToast('Clocked out successfully!', 'success')
+      }
+    } catch {
+      showToast('An unexpected error occurred', 'error')
     } finally {
       setLoading(false)
     }

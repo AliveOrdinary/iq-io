@@ -3,22 +3,59 @@
 import { createClient } from '@/lib/supabase/client'
 import { createEmployee, deleteEmployee } from '@/app/admin/employees/actions'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Database } from '@/lib/database.types'
+import { useToast } from '@/components/ui/Toast'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function SuperAdminEmployeesPage() {
-  const [profiles, setProfiles] = useState<any[]>([])
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [loading, setLoading] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
+  const { showToast } = useToast()
 
   useEffect(() => {
     async function getProfiles() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .neq('email', 'aliveordinary@gmail.com')
+        .neq('role', 'super_admin')
         .order('name')
       if (data) setProfiles(data)
     }
     getProfiles()
   }, [])
+
+  const handleCreateEmployee = async (formData: FormData) => {
+    setLoading(true)
+    const res = await createEmployee(formData)
+    if (res.error) {
+      showToast(res.error, 'error')
+    } else {
+      showToast('User created successfully', 'success')
+      router.refresh()
+      // Re-fetch profiles
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .neq('role', 'super_admin')
+        .order('name')
+      if (data) setProfiles(data)
+    }
+    setLoading(false)
+  }
+
+  const handleDeleteEmployee = async (id: string) => {
+    const res = await deleteEmployee(id)
+    if (res.error) {
+      showToast(res.error, 'error')
+    } else {
+      showToast('User removed', 'success')
+      setProfiles(profiles.filter(p => p.id !== id))
+    }
+  }
 
   return (
     <div className="space-y-12">
@@ -31,11 +68,7 @@ export default function SuperAdminEmployeesPage() {
       <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
         <h3 className="text-lg font-semibold text-white mb-6">Create New User</h3>
         <form 
-          action={async (formData) => {
-            const res = await createEmployee(formData)
-            if (res.error) alert(res.error)
-            else window.location.reload()
-          }}
+          action={handleCreateEmployee}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           <div className="space-y-2">
@@ -89,14 +122,12 @@ export default function SuperAdminEmployeesPage() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                   <form action={async () => {
-                    await deleteEmployee(p.id)
-                    window.location.reload()
-                  }}>
-                    <button className="text-red-500/40 hover:text-red-500 text-xs font-bold transition-opacity opacity-0 group-hover:opacity-100 uppercase tracking-tighter">
-                      Remove Access
-                    </button>
-                  </form>
+                   <button 
+                     onClick={() => handleDeleteEmployee(p.id)}
+                     className="text-red-500/40 hover:text-red-500 text-xs font-bold transition-opacity opacity-0 group-hover:opacity-100 uppercase tracking-tighter"
+                   >
+                     Remove Access
+                   </button>
                 </td>
               </tr>
             ))}

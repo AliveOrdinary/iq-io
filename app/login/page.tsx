@@ -1,9 +1,27 @@
 'use client'
 
+import { useState } from 'react'
 import { login } from './actions'
-import Image from 'next/image'
+import { useToast } from '@/components/ui/Toast'
 
 export default function LoginPage() {
+  const [loading, setLoading] = useState(false)
+  const { showToast } = useToast()
+
+  const handleSubmit = async (formData: FormData) => {
+    setLoading(true)
+    try {
+      const result = await login(formData)
+      if (result?.error) {
+        showToast(result.error, 'error')
+      }
+    } catch {
+      showToast('An unexpected error occurred', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden">
       {/* Background patterns */}
@@ -18,15 +36,7 @@ export default function LoginPage() {
           <p className="text-gray-400 text-sm">Sign in to your account to clock in/out</p>
         </div>
 
-        <form 
-          action={async (formData) => {
-            const result = await login(formData);
-            if (result?.error) {
-              alert(result.error);
-            }
-          }} 
-          className="space-y-6"
-        >
+        <form action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300 ml-1" htmlFor="email">
               Email Address
@@ -37,7 +47,8 @@ export default function LoginPage() {
               type="email"
               placeholder="name@iqautomations.com"
               required
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              disabled={loading}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
             />
           </div>
 
@@ -51,15 +62,17 @@ export default function LoginPage() {
               type="password"
               placeholder="••••••••"
               required
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              disabled={loading}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { updateProfile, deleteEmployee } from './actions'
+import { useToast } from '@/components/ui/Toast'
 
 type Employee = {
   id: string
   name: string
   email: string
-  role: string
+  role: 'employee' | 'admin'
   hourly_rate: number
   phone: string | null
   address: string | null
@@ -16,11 +17,19 @@ type Employee = {
 export default function EmployeeRow({ emp }: { emp: Employee }) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { showToast } = useToast()
   
   // Local state for the "View" mode to support optimistic updates
   const [displayData, setDisplayData] = useState(emp)
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string
+    email: string
+    role: 'employee' | 'admin'
+    hourly_rate: number
+    phone: string
+    address: string
+  }>({
     name: emp.name || '',
     email: emp.email || '',
     role: emp.role || 'employee',
@@ -39,7 +48,7 @@ export default function EmployeeRow({ emp }: { emp: Employee }) {
     
     const res = await updateProfile(emp.id, updates)
     if (res.error) {
-      alert(res.error)
+      showToast(res.error, 'error')
     } else {
       // Update local display data to reflect changes immediately
       setDisplayData({
@@ -48,14 +57,20 @@ export default function EmployeeRow({ emp }: { emp: Employee }) {
         hourly_rate: updates.hourly_rate
       } as Employee)
       setIsEditing(false)
+      showToast('Employee updated successfully', 'success')
     }
     setLoading(false)
   }
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this employee?')) return
-    await deleteEmployee(emp.id)
-    window.location.reload()
+    const res = await deleteEmployee(emp.id)
+    if (res.error) {
+      showToast(res.error, 'error')
+    } else {
+      showToast('Employee removed', 'success')
+      window.location.reload()
+    }
   }
 
   if (isEditing) {
