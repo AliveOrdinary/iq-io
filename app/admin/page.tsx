@@ -58,13 +58,13 @@ export default async function AdminDashboard() {
         </div>
         
         <div className="overflow-x-auto">
-          <table>
+          <table className="min-w-[500px] w-full">
             <thead>
               <tr>
                 <th>Employee</th>
                 <th>Clocked In</th>
                 <th>Elapsed</th>
-                <th className="text-right">Location</th>
+                <th className="text-right hidden sm:table-cell">Location</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +93,7 @@ export default async function AdminDashboard() {
                       <td className="font-mono text-accent">
                         {elapsedHrs}h {elapsedMins}m
                       </td>
-                      <td className="text-right">
+                      <td className="text-right hidden sm:table-cell">
                         <span className="text-xs text-[#666]">GPS Verified</span>
                       </td>
                     </tr>

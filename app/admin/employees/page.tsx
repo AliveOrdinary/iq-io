@@ -79,22 +79,24 @@ export default function EmployeesPage() {
 
       {/* Employee List */}
       <div className="card overflow-hidden">
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>Role</th>
-              <th>Hourly Rate</th>
-              <th>Contact</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees?.map((emp) => (
-              <EmployeeRow key={emp.id} emp={emp} />
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="min-w-[600px] w-full">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Role</th>
+                <th>Hourly Rate</th>
+                <th className="hidden md:table-cell">Contact</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees?.map((emp) => (
+                <EmployeeRow key={emp.id} emp={emp} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

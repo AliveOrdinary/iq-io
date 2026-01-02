@@ -65,7 +65,7 @@ export default function TimeEntryRow({ entry }: { entry: any }) {
         <button 
           onClick={handleSave}
           disabled={loading}
-          className="text-accent hover:opacity-80 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+          className="text-accent hover:opacity-80 text-xs font-medium md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-50"
         >
           {loading ? 'Saving...' : 'Save'}
         </button>

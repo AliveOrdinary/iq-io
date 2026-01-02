@@ -22,22 +22,24 @@ export default async function TimeEntriesPage({
       </header>
 
       <div className="card overflow-hidden">
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>Clock In</th>
-              <th>Clock Out</th>
-              <th>Hours</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries?.map((entry) => (
-              <TimeEntryRow key={entry.id} entry={entry} />
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="min-w-[600px] w-full">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Hours</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries?.map((entry) => (
+                <TimeEntryRow key={entry.id} entry={entry} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       
       <p className="text-xs text-[#444]">

@@ -92,37 +92,42 @@ export default function SuperAdminEmployeesPage() {
 
       {/* Team List */}
       <div className="card overflow-hidden">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profiles?.map((p) => (
-              <tr key={p.id} className="group">
-                <td className="font-medium text-white">{p.name}</td>
-                <td className="text-[#999]">{p.email}</td>
-                <td>
-                  <span className={`text-xs ${p.role === 'admin' ? 'text-accent' : 'text-[#666]'}`}>
-                    {p.role}
-                  </span>
-                </td>
-                <td className="text-right">
-                   <button 
-                     onClick={() => handleDeleteEmployee(p.id)}
-                     className="text-[#666] hover:text-[#ef4444] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
-                   >
-                     Remove
-                   </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-[500px] w-full">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th className="hidden sm:table-cell">Email</th>
+                <th>Role</th>
+                <th className="text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {profiles?.map((p) => (
+                <tr key={p.id} className="group">
+                  <td>
+                    <div className="font-medium text-white">{p.name}</div>
+                    <div className="text-xs text-[#666] sm:hidden">{p.email}</div>
+                  </td>
+                  <td className="text-[#999] hidden sm:table-cell">{p.email}</td>
+                  <td>
+                    <span className={`text-xs ${p.role === 'admin' ? 'text-accent' : 'text-[#666]'}`}>
+                      {p.role}
+                    </span>
+                  </td>
+                  <td className="text-right">
+                     <button 
+                       onClick={() => handleDeleteEmployee(p.id)}
+                       className="text-[#666] hover:text-[#ef4444] text-xs font-medium md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                     >
+                       Remove
+                     </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

@@ -93,11 +93,11 @@ export default async function ReportsPage({
         </div>
         
         <div className="overflow-x-auto">
-          <table>
+          <table className="min-w-[450px] w-full">
             <thead>
               <tr>
                 <th>Employee</th>
-                <th>Rate</th>
+                <th className="hidden sm:table-cell">Rate</th>
                 <th>Hours</th>
                 <th className="text-right">Gross Pay</th>
               </tr>
@@ -109,7 +109,7 @@ export default async function ReportsPage({
                     <div className="font-medium text-white">{row.name}</div>
                     <div className="text-xs text-[#666]">{row.email}</div>
                   </td>
-                  <td className="font-mono text-[#999]">
+                  <td className="font-mono text-[#999] hidden sm:table-cell">
                     ${row.hourly_rate.toFixed(2)}/hr
                   </td>
                   <td className="font-mono text-accent">

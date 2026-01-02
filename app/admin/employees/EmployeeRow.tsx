@@ -87,7 +87,7 @@ export default function EmployeeRow({ emp }: { emp: Employee }) {
         <td>
           <input name="hourly_rate" type="number" step="0.01" value={formData.hourly_rate} onChange={handleChange} className="w-20" />
         </td>
-        <td>
+        <td className="hidden md:table-cell">
           <input name="phone" value={formData.phone} onChange={handleChange} className="w-full mb-1" placeholder="Phone" />
           <input name="address" value={formData.address} onChange={handleChange} className="w-full text-xs" placeholder="Address" />
         </td>
@@ -117,15 +117,15 @@ export default function EmployeeRow({ emp }: { emp: Employee }) {
       <td className="font-mono text-accent">
         ${displayData.hourly_rate?.toFixed(2)}
       </td>
-      <td className="text-xs text-[#666]">
+      <td className="text-xs text-[#666] hidden md:table-cell">
         <div>{displayData.phone || '—'}</div>
         <div className="truncate max-w-[150px]">{displayData.address || '—'}</div>
       </td>
       <td className="text-right space-x-3">
-        <button onClick={() => setIsEditing(true)} className="text-[#666] hover:text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => setIsEditing(true)} className="text-[#666] hover:text-white text-xs font-medium md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           Edit
         </button>
-        <button onClick={handleDelete} className="text-[#666] hover:text-[#ef4444] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={handleDelete} className="text-[#666] hover:text-[#ef4444] text-xs font-medium md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           Delete
         </button>
       </td>
