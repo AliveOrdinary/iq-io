@@ -6,7 +6,7 @@ const navItems = [
   { href: '/super-admin', label: 'Dashboard' },
   { href: '/super-admin/employees', label: 'Manage Team' },
   { href: '/super-admin/time-entries', label: 'Time Corrections' },
-  { href: '/super-admin/settings', label: 'System Settings', highlight: true },
+  { href: '/super-admin/settings', label: 'Settings', highlight: true },
 ]
 
 export default async function SuperAdminLayout({
@@ -31,14 +31,14 @@ export default async function SuperAdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-black text-[#e5e5e5] flex flex-col md:flex-row">
       <AdminSidebar 
         title="IQ Automations" 
-        subtitle="Super Admin Portal" 
+        subtitle="Super Admin" 
         navItems={navItems} 
       />
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <div className="max-w-5xl">
           {children}
         </div>
       </main>

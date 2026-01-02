@@ -43,25 +43,23 @@ export default async function EmployeeDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-black text-[#e5e5e5] p-6 md:p-10">
+      <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              IQ <span className="text-blue-500">Automations</span>
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">Employee Dashboard</p>
+            <h1 className="text-lg font-semibold text-white">IQ Automations</h1>
+            <p className="text-[#666] text-sm">Employee Dashboard</p>
           </div>
           <form action={logout}>
-            <button className="text-sm text-gray-400 hover:text-white transition-colors">
+            <button className="text-sm text-[#666] hover:text-white transition-colors">
               Sign out
             </button>
           </form>
         </header>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <ClockInWidget 
             currentEntry={currentEntry} 
             geofence={geofence} 
@@ -70,8 +68,8 @@ export default async function EmployeeDashboard() {
         </div>
 
         {/* Footer info */}
-        <div className="text-center pt-8 border-t border-white/5">
-          <p className="text-xs text-gray-600 uppercase tracking-widest font-medium">
+        <div className="text-center pt-6 border-t border-[#222]">
+          <p className="text-xs text-[#444]">
             Shift: 7:00 AM — 3:00 PM EST
           </p>
         </div>

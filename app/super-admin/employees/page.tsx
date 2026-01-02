@@ -11,7 +11,6 @@ type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function SuperAdminEmployeesPage() {
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [loading, setLoading] = useState(false)
   const supabase = createClient()
   const router = useRouter()
   const { showToast } = useToast()
@@ -29,14 +28,12 @@ export default function SuperAdminEmployeesPage() {
   }, [])
 
   const handleCreateEmployee = async (formData: FormData) => {
-    setLoading(true)
     const res = await createEmployee(formData)
     if (res.error) {
       showToast(res.error, 'error')
     } else {
-      showToast('User created successfully', 'success')
+      showToast('User created', 'success')
       router.refresh()
-      // Re-fetch profiles
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -44,7 +41,6 @@ export default function SuperAdminEmployeesPage() {
         .order('name')
       if (data) setProfiles(data)
     }
-    setLoading(false)
   }
 
   const handleDeleteEmployee = async (id: string) => {
@@ -58,40 +54,36 @@ export default function SuperAdminEmployeesPage() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <header>
-        <h2 className="text-3xl font-bold tracking-tight text-white">Team Management</h2>
-        <p className="text-gray-500 mt-1">Manage Admins and Employees for IQ Automations.</p>
+        <h2 className="text-xl font-semibold text-white">Team Management</h2>
+        <p className="text-[#666] text-sm mt-0.5">Manage admins and employees</p>
       </header>
 
-      {/* Add Person Form */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-        <h3 className="text-lg font-semibold text-white mb-6">Create New User</h3>
+      {/* Add User Form */}
+      <div className="card p-6">
+        <h3 className="font-medium text-white mb-4">Create New User</h3>
         <form 
           action={handleCreateEmployee}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Full Name</label>
-            <input name="name" required placeholder="Jane Doe" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+          <div>
+            <label className="block text-xs text-[#666] mb-1.5">Full Name</label>
+            <input name="name" required placeholder="Jane Doe" className="w-full" />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Email</label>
-            <input name="email" type="email" required placeholder="jane@iqautomations.com" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+          <div>
+            <label className="block text-xs text-[#666] mb-1.5">Email</label>
+            <input name="email" type="email" required placeholder="jane@iqautomations.com" className="w-full" />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Role</label>
-            <select name="role" className="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 appearance-none">
+          <div>
+            <label className="block text-xs text-[#666] mb-1.5">Role</label>
+            <select name="role" className="w-full">
               <option value="employee">Employee</option>
               <option value="admin">Admin</option>
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Password</label>
-            <input name="password" type="password" placeholder="Optional" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
-          </div>
           <div className="flex items-end">
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]">
+            <button type="submit" className="w-full btn btn-primary py-2.5">
               Create User
             </button>
           </div>
@@ -99,34 +91,32 @@ export default function SuperAdminEmployeesPage() {
       </div>
 
       {/* Team List */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl text-sm">
-        <table className="w-full text-left">
+      <div className="card overflow-hidden">
+        <table>
           <thead>
-            <tr className="text-[10px] uppercase tracking-widest text-gray-500 border-b border-white/5">
-              <th className="px-6 py-4 font-bold">Name</th>
-              <th className="px-6 py-4 font-bold">Email</th>
-              <th className="px-6 py-4 font-bold">Role</th>
-              <th className="px-6 py-4 font-bold text-right">Actions</th>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody>
             {profiles?.map((p) => (
-              <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
-                <td className="px-6 py-4 font-semibold text-white">{p.name}</td>
-                <td className="px-6 py-4 text-gray-400">{p.email}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-widest ${
-                    p.role === 'admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
-                  }`}>
+              <tr key={p.id} className="group">
+                <td className="font-medium text-white">{p.name}</td>
+                <td className="text-[#999]">{p.email}</td>
+                <td>
+                  <span className={`text-xs ${p.role === 'admin' ? 'text-accent' : 'text-[#666]'}`}>
                     {p.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="text-right">
                    <button 
                      onClick={() => handleDeleteEmployee(p.id)}
-                     className="text-red-500/40 hover:text-red-500 text-xs font-bold transition-opacity opacity-0 group-hover:opacity-100 uppercase tracking-tighter"
+                     className="text-[#666] hover:text-[#ef4444] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
                    >
-                     Remove Access
+                     Remove
                    </button>
                 </td>
               </tr>

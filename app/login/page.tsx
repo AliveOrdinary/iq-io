@@ -15,7 +15,11 @@ export default function LoginPage() {
       if (result?.error) {
         showToast(result.error, 'error')
       }
-    } catch {
+    } catch (e) {
+      // Next.js redirects throw NEXT_REDIRECT errors - don't show toast for those
+      if (e && typeof e === 'object' && 'digest' in e && String((e as any).digest).includes('NEXT_REDIRECT')) {
+        return // This is a successful redirect, not an error
+      }
       showToast('An unexpected error occurred', 'error')
     } finally {
       setLoading(false)
@@ -23,23 +27,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden">
-      {/* Background patterns */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
-      
-      <div className="w-full max-w-md p-8 relative z-10">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-white tracking-tight mb-2">
-            IQ <span className="text-blue-500">Automations</span>
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="w-full max-w-sm p-8">
+        <div className="mb-10 text-center">
+          <h1 className="text-2xl font-semibold text-white tracking-tight">
+            IQ Automations
           </h1>
-          <p className="text-gray-400 text-sm">Sign in to your account to clock in/out</p>
+          <p className="text-[#666] text-sm mt-1">Sign in to clock in/out</p>
         </div>
 
-        <form action={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300 ml-1" htmlFor="email">
-              Email Address
+        <form action={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-[#666] mb-1.5" htmlFor="email">
+              Email
             </label>
             <input
               id="email"
@@ -48,12 +48,12 @@ export default function LoginPage() {
               placeholder="name@iqautomations.com"
               required
               disabled={loading}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
+              className="w-full"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300 ml-1" htmlFor="password">
+          <div>
+            <label className="block text-sm text-[#666] mb-1.5" htmlFor="password">
               Password
             </label>
             <input
@@ -63,21 +63,21 @@ export default function LoginPage() {
               placeholder="••••••••"
               required
               disabled={loading}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50"
+              className="w-full"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full btn btn-primary mt-6 py-2.5"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-gray-500 text-xs">
-          &copy; {new Date().getFullYear()} IQ Automations. All rights reserved.
+        <p className="mt-8 text-center text-[#444] text-xs">
+          &copy; {new Date().getFullYear()} IQ Automations
         </p>
       </div>
     </div>

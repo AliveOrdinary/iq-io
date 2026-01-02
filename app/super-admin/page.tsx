@@ -4,7 +4,6 @@ import Link from 'next/link'
 export default async function SuperAdminDashboard() {
   const supabase = await createClient()
 
-  // High-level stats
   const { count: employeeCount } = await supabase
     .from('profiles')
     .select('*', { count: 'exact', head: true })
@@ -22,74 +21,70 @@ export default async function SuperAdminDashboard() {
     .limit(5)
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <header>
-        <h2 className="text-3xl font-bold tracking-tight text-white">Super Admin Dashboard</h2>
-        <p className="text-gray-500 mt-1">System-wide overview and administrative controls.</p>
+        <h2 className="text-xl font-semibold text-white">Dashboard</h2>
+        <p className="text-[#666] text-sm mt-0.5">System overview and controls</p>
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Total Employees</p>
-          <p className="text-4xl font-bold text-white">{employeeCount || 0}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">Total Employees</p>
+          <p className="text-3xl font-semibold text-white">{employeeCount || 0}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Active Admins</p>
-          <p className="text-4xl font-bold text-blue-500">{adminCount || 0}</p>
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">Active Admins</p>
+          <p className="text-3xl font-semibold text-accent">{adminCount || 0}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">System Status</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <p className="text-lg font-bold text-white uppercase tracking-tight">Active</p>
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">System Status</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="w-2 h-2 rounded-full bg-accent" />
+            <p className="font-medium text-white">Active</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Quick Actions */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/super-admin/employees" className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-blue-600/10 hover:border-blue-500/50 transition-all">
-              <p className="font-bold text-white group-hover:text-blue-400 transition-colors">Manage Team</p>
-              <p className="text-xs text-gray-500 mt-1">Add/remove users and set rates.</p>
+        <div className="space-y-4">
+          <h3 className="font-medium text-white">Quick Actions</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link href="/super-admin/employees" className="card p-4 hover:bg-[#1a1a1a] transition-colors">
+              <p className="font-medium text-white">Manage Team</p>
+              <p className="text-xs text-[#666] mt-0.5">Add/remove users and set rates</p>
             </Link>
-            <Link href="/super-admin/settings" className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-purple-600/10 hover:border-purple-500/50 transition-all">
-              <p className="font-bold text-white group-hover:text-purple-400 transition-colors">System Settings</p>
-              <p className="text-xs text-gray-500 mt-1">Geofence and work schedules.</p>
+            <Link href="/super-admin/settings" className="card p-4 hover:bg-[#1a1a1a] transition-colors">
+              <p className="font-medium text-white">Settings</p>
+              <p className="text-xs text-[#666] mt-0.5">Geofence and schedules</p>
             </Link>
-            <Link href="/super-admin/time-entries" className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-amber-600/10 hover:border-amber-500/50 transition-all">
-              <p className="font-bold text-white group-hover:text-amber-400 transition-colors">Time Corrections</p>
-              <p className="text-xs text-gray-500 mt-1">Audit and edit clock records.</p>
+            <Link href="/super-admin/time-entries" className="card p-4 hover:bg-[#1a1a1a] transition-colors">
+              <p className="font-medium text-white">Time Corrections</p>
+              <p className="text-xs text-[#666] mt-0.5">Audit and edit records</p>
             </Link>
           </div>
         </div>
 
-        {/* Recent System Activity */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-white">Recent Time Logs</h3>
-          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5">
+        {/* Recent Activity */}
+        <div className="space-y-4">
+          <h3 className="font-medium text-white">Recent Time Logs</h3>
+          <div className="card divide-y divide-[#1a1a1a]">
             {recentEntries?.map(entry => (
-              <div key={entry.id} className="p-4 flex items-center justify-between text-sm">
+              <div key={entry.id} className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-white">{entry.profiles?.name}</p>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-tighter">
+                  <p className="font-medium text-white">{entry.profiles?.name}</p>
+                  <p className="text-xs text-[#666]">
                     {new Date(entry.clock_in).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-                <div className="text-right">
-                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                     entry.clock_out ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                   }`}>
-                     {entry.clock_out ? 'COMPLETED' : 'IN PROGRESS'}
-                   </span>
-                </div>
+                <span className={`text-xs ${entry.clock_out ? 'text-[#666]' : 'text-accent'}`}>
+                  {entry.clock_out ? 'Completed' : 'In Progress'}
+                </span>
               </div>
             ))}
             {(!recentEntries || recentEntries.length === 0) && (
-              <p className="p-8 text-center text-gray-500 text-sm italic">No recent activity detected.</p>
+              <p className="p-6 text-center text-[#666] text-sm">No recent activity</p>
             )}
           </div>
         </div>

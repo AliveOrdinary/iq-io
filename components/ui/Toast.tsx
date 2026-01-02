@@ -33,7 +33,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const id = crypto.randomUUID()
     setToasts(prev => [...prev, { id, message, type }])
     
-    // Auto dismiss after 4 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id))
     }, 4000)
@@ -54,27 +53,29 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 function ToastContainer({ toasts, onDismiss }: { toasts: Toast[], onDismiss: (id: string) => void }) {
   if (toasts.length === 0) return null
 
+  const getStyles = (type: ToastType) => {
+    switch (type) {
+      case 'success':
+        return 'bg-[#111] border-accent text-accent'
+      case 'error':
+        return 'bg-[#111] border-[#ef4444] text-[#ef4444]'
+      default:
+        return 'bg-[#111] border-[#333] text-[#e5e5e5]'
+    }
+  }
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm">
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`
-            px-4 py-3 rounded-xl shadow-xl backdrop-blur-sm border
-            animate-in slide-in-from-bottom-4 fade-in duration-300
-            ${toast.type === 'success' 
-              ? 'bg-green-500/10 border-green-500/20 text-green-400' 
-              : toast.type === 'error'
-              ? 'bg-red-500/10 border-red-500/20 text-red-400'
-              : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
-            }
-          `}
+          className={`px-4 py-3 rounded border text-sm ${getStyles(toast.type)}`}
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium">{toast.message}</p>
+            <p>{toast.message}</p>
             <button 
               onClick={() => onDismiss(toast.id)}
-              className="text-white/40 hover:text-white/80 transition-colors text-lg leading-none"
+              className="text-[#666] hover:text-white text-lg leading-none"
             >
               ×
             </button>

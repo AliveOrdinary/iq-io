@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import ReportExport from '@/components/admin/ReportExport'
-import { startOfMonth, endOfMonth, format } from 'date-fns'
+import { format } from 'date-fns'
 
 export default async function ReportsPage({
   searchParams,
@@ -26,7 +26,7 @@ export default async function ReportsPage({
         clock_in
       )
     `)
-    .neq('role', 'super_admin') // Filter out super admins
+    .neq('role', 'super_admin')
 
   // Process data for reports
   const reportData = (profiles || []).map(p => {
@@ -49,74 +49,74 @@ export default async function ReportsPage({
   })
 
   return (
-    <div className="space-y-12">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">Payroll Reports</h2>
-          <p className="text-gray-500 mt-1">Generate and export employee payroll data.</p>
+          <h2 className="text-xl font-semibold text-white">Payroll Reports</h2>
+          <p className="text-[#666] text-sm mt-0.5">Generate and export payroll data</p>
         </div>
         
         <ReportExport data={reportData} dateRange={{ from, to }} />
       </header>
 
-      {/* Date Filter Bar */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-        <form className="flex flex-wrap items-end gap-6">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-widest pl-1">Start Date</label>
+      {/* Date Filter */}
+      <div className="card p-4">
+        <form className="flex flex-wrap items-end gap-4">
+          <div>
+            <label className="block text-xs text-[#666] mb-1.5">Start Date</label>
             <input 
               name="from" 
               type="date" 
               defaultValue={from}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50" 
+              className="w-auto"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-widest pl-1">End Date</label>
+          <div>
+            <label className="block text-xs text-[#666] mb-1.5">End Date</label>
             <input 
               name="to" 
               type="date" 
               defaultValue={to}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50" 
+              className="w-auto"
             />
           </div>
-          <button type="submit" className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold transition-all border border-white/5">
-            Filter Results
+          <button type="submit" className="btn btn-secondary">
+            Filter
           </button>
         </form>
       </div>
 
       {/* Report Table */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl text-sm">
-        <div className="p-6 border-b border-white/5">
-          <h3 className="text-lg font-semibold text-white">Summary for {from} to {to}</h3>
+      <div className="card overflow-hidden">
+        <div className="p-4 border-b border-[#222]">
+          <h3 className="font-medium text-white">Summary: {from} to {to}</h3>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table>
             <thead>
-              <tr className="text-[10px] uppercase tracking-widest text-gray-500 border-b border-white/5">
-                <th className="px-6 py-4 font-bold">Employee</th>
-                <th className="px-6 py-4 font-bold">Hourly Rate</th>
-                <th className="px-6 py-4 font-bold">Total Hours</th>
-                <th className="px-6 py-4 font-bold text-right">Gross Pay</th>
+              <tr>
+                <th>Employee</th>
+                <th>Rate</th>
+                <th>Hours</th>
+                <th className="text-right">Gross Pay</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {reportData.map((row) => (
-                <tr key={row.email} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-white">{row.name}</div>
-                    <div className="text-xs text-gray-500">{row.email}</div>
+                <tr key={row.email}>
+                  <td>
+                    <div className="font-medium text-white">{row.name}</div>
+                    <div className="text-xs text-[#666]">{row.email}</div>
                   </td>
-                  <td className="px-6 py-4 font-mono text-gray-400">
+                  <td className="font-mono text-[#999]">
                     ${row.hourly_rate.toFixed(2)}/hr
                   </td>
-                  <td className="px-6 py-4 font-mono text-blue-400">
-                    {row.total_hours.toFixed(2)} hrs
+                  <td className="font-mono text-accent">
+                    {row.total_hours.toFixed(2)}h
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-lg font-bold text-white">
+                  <td className="text-right">
+                    <span className="font-semibold text-white">
                       ${row.gross_pay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </td>
@@ -124,17 +124,19 @@ export default async function ReportsPage({
               ))}
               {reportData.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">
-                    No data found for the selected period.
+                  <td colSpan={4} className="py-8 text-center text-[#666]">
+                    No data for selected period
                   </td>
                 </tr>
               )}
             </tbody>
             {reportData.length > 0 && (
-              <tfoot className="bg-white/[0.02]">
+              <tfoot className="bg-[#0a0a0a]">
                 <tr>
-                  <td colSpan={3} className="px-6 py-6 font-bold text-gray-400 text-right uppercase tracking-widest text-xs">Total Payroll</td>
-                  <td className="px-6 py-6 text-right font-bold text-2xl text-blue-500">
+                  <td colSpan={3} className="text-right text-xs text-[#666] uppercase tracking-wide font-medium">
+                    Total Payroll
+                  </td>
+                  <td className="text-right font-bold text-xl text-accent">
                     ${reportData.reduce((acc, curr) => acc + curr.gross_pay, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>

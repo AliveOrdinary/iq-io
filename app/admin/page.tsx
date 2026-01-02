@@ -22,62 +22,56 @@ export default async function AdminDashboard() {
   const totalHours = todaysEntries?.reduce((acc, curr) => acc + (curr.hours_worked || 0), 0) || 0
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <header>
-        <h2 className="text-3xl font-bold tracking-tight text-white">Dashboard Overview</h2>
-        <p className="text-gray-500 mt-1">Real-time status of your team at IQ Automations.</p>
+        <h2 className="text-xl font-semibold text-white">Dashboard</h2>
+        <p className="text-[#666] text-sm mt-0.5">Real-time status of your team</p>
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-sm font-medium text-gray-400">Clocked In Now</p>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-4xl font-bold text-white">{activeEntries?.length || 0}</span>
-            <span className="text-sm text-green-500 font-medium">Active</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">Clocked In Now</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-semibold text-white">{activeEntries?.length || 0}</span>
+            <span className="text-xs text-accent">Active</span>
           </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-sm font-medium text-gray-400">Total Hours Today</p>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-4xl font-bold text-white">{totalHours.toFixed(1)}</span>
-            <span className="text-sm text-blue-500 font-medium">Hours</span>
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">Total Hours Today</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-semibold text-white">{totalHours.toFixed(1)}</span>
+            <span className="text-xs text-[#666]">hrs</span>
           </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-          <p className="text-sm font-medium text-gray-400">Next Payroll</p>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-xl font-bold text-white uppercase tracking-tight">Friday</span>
-            <span className="text-sm text-purple-500 font-medium">Automatic</span>
-          </div>
+        <div className="card p-5">
+          <p className="text-xs text-[#666] mb-1">Next Payroll</p>
+          <span className="text-lg font-semibold text-white">Friday</span>
         </div>
       </div>
 
       {/* Live Status Table */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Live Employee Status</h3>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-[10px] uppercase font-bold tracking-widest border border-green-500/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Live
-          </div>
+      <div className="card overflow-hidden">
+        <div className="p-4 border-b border-[#222] flex items-center justify-between">
+          <h3 className="font-medium text-white">Employee Status</h3>
+          <span className="text-xs text-accent">● Live</span>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table>
             <thead>
-              <tr className="text-xs uppercase tracking-widest text-gray-500 border-b border-white/5">
-                <th className="px-6 py-4 font-semibold">Employee</th>
-                <th className="px-6 py-4 font-semibold">Clocked In At</th>
-                <th className="px-6 py-4 font-semibold">Time Elapsed</th>
-                <th className="px-6 py-4 font-semibold text-right">Location</th>
+              <tr>
+                <th>Employee</th>
+                <th>Clocked In</th>
+                <th>Elapsed</th>
+                <th className="text-right">Location</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {activeEntries?.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500 italic">
-                    No employees are currently clocked in.
+                  <td colSpan={4} className="py-8 text-center text-[#666]">
+                    No employees currently clocked in
                   </td>
                 </tr>
               ) : (
@@ -88,21 +82,19 @@ export default async function AdminDashboard() {
                   const elapsedMins = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60))
 
                   return (
-                    <tr key={entry.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-4">
+                    <tr key={entry.id}>
+                      <td>
                         <div className="font-medium text-white">{entry.profiles.name}</div>
-                        <div className="text-xs text-gray-500">{entry.profiles.role}</div>
+                        <div className="text-xs text-[#666]">{entry.profiles.role}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-300 underline decoration-white/10 underline-offset-4">
+                      <td className="text-[#999]">
                         {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </td>
-                      <td className="px-6 py-4 text-sm font-mono text-blue-400">
+                      <td className="font-mono text-accent">
                         {elapsedHrs}h {elapsedMins}m
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400 uppercase font-medium">
-                          Verified GPS
-                        </span>
+                      <td className="text-right">
+                        <span className="text-xs text-[#666]">GPS Verified</span>
                       </td>
                     </tr>
                   )

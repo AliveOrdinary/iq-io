@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { updateTimeLogs } from '../settings/actions'
 import TimeEntryRow from './TimeEntryRow'
 
 export default async function TimeEntriesPage({
@@ -16,24 +15,24 @@ export default async function TimeEntriesPage({
     .limit(50)
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <header>
-        <h2 className="text-3xl font-bold tracking-tight text-white">Time Corrections</h2>
-        <p className="text-gray-500 mt-1">Directly edit or correct employee time logs.</p>
+        <h2 className="text-xl font-semibold text-white">Time Corrections</h2>
+        <p className="text-[#666] text-sm mt-0.5">Edit or correct employee time logs</p>
       </header>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl text-sm">
-        <table className="w-full text-left">
+      <div className="card overflow-hidden">
+        <table>
           <thead>
-            <tr className="text-[10px] uppercase tracking-widest text-gray-500 border-b border-white/5">
-              <th className="px-6 py-4 font-bold">Employee</th>
-              <th className="px-6 py-4 font-bold">Clock In</th>
-              <th className="px-6 py-4 font-bold">Clock Out</th>
-              <th className="px-6 py-4 font-bold">Hours</th>
-              <th className="px-6 py-4 font-bold text-right">Actions</th>
+            <tr>
+              <th>Employee</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Hours</th>
+              <th className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody>
             {entries?.map((entry) => (
               <TimeEntryRow key={entry.id} entry={entry} />
             ))}
@@ -41,9 +40,8 @@ export default async function TimeEntriesPage({
         </table>
       </div>
       
-      <p className="text-xs text-gray-500 italic">
-        * Note: Changing Clock In/Out times will not automatically recalculate hours in this view. 
-        Re-calculation logic should be triggered upon save.
+      <p className="text-xs text-[#444]">
+        * Changing times will recalculate hours on save
       </p>
     </div>
   )

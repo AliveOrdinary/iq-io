@@ -7,42 +7,40 @@ export type ActivityEntry = {
 
 export default function ActivityLog({ entries }: { entries: ActivityEntry[] }) {
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-      <h3 className="text-lg font-semibold text-white mb-6">Recent Activity</h3>
+    <div className="card p-6">
+      <h3 className="font-medium text-white mb-4">Recent Activity</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-3">
         {entries.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-4">No recent activity found.</p>
+          <p className="text-sm text-[#666] py-4 text-center">No recent activity</p>
         ) : (
           entries.map((entry) => (
             <div 
               key={entry.id} 
-              className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"
+              className="flex items-center justify-between p-3 rounded bg-[#0a0a0a] border border-[#1a1a1a]"
             >
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div>
+                <span className="text-xs text-[#666]">
                   {new Date(entry.clock_in).toLocaleDateString('en-US', { 
                     weekday: 'short', 
                     month: 'short', 
                     day: 'numeric' 
                   })}
                 </span>
-                <span className="text-sm text-white font-medium">
+                <div className="text-sm text-white mt-0.5">
                   {new Date(entry.clock_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   {' — '}
                   {entry.clock_out 
                     ? new Date(entry.clock_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : <span className="text-blue-400 italic">In Progress</span>
+                    : <span className="text-accent">In Progress</span>
                   }
-                </span>
+                </div>
               </div>
 
               {entry.hours_worked !== null && (
-                <div className="text-right">
-                  <span className="text-sm font-bold text-blue-500">
-                    {entry.hours_worked} hrs
-                  </span>
-                </div>
+                <span className="text-sm font-mono text-accent">
+                  {entry.hours_worked}h
+                </span>
               )}
             </div>
           ))
