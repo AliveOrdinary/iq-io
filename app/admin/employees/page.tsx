@@ -1,7 +1,8 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { createEmployee, deleteEmployee } from './actions'
+import { createEmployee } from './actions'
+import EmployeeRow from './EmployeeRow'
 import { useEffect, useState } from 'react'
 
 export default function EmployeesPage() {
@@ -86,36 +87,7 @@ export default function EmployeesPage() {
           </thead>
           <tbody className="divide-y divide-white/5">
             {employees?.map((emp) => (
-              <tr key={emp.id} className="hover:bg-white/[0.02] transition-colors group">
-                <td className="px-6 py-4">
-                  <div className="font-semibold text-white">{emp.name}</div>
-                  <div className="text-xs text-gray-500">{emp.email}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                    emp.role === 'admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
-                  }`}>
-                    {emp.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 font-mono text-blue-400">
-                  ${emp.hourly_rate?.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 text-xs text-gray-400">
-                  <div>{emp.phone || 'No phone'}</div>
-                  <div className="truncate max-w-[150px]">{emp.address || 'No address'}</div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <form action={async () => {
-                    await deleteEmployee(emp.id)
-                    window.location.reload()
-                  }}>
-                    <button className="text-red-500/40 hover:text-red-500 text-xs font-bold transition-colors opacity-0 group-hover:opacity-100 uppercase tracking-tighter">
-                      Delete
-                    </button>
-                  </form>
-                </td>
-              </tr>
+              <EmployeeRow key={emp.id} emp={emp} />
             ))}
           </tbody>
         </table>

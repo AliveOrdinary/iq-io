@@ -70,12 +70,25 @@ export async function createEmployee(formData: FormData) {
 
 export async function updateProfile(id: string, updates: any) {
   const supabase = await createClient()
+  const supabaseAdmin = createAdminClient()
+
+  // If email is being updated, we need to update the auth user as well
+  if (updates.email) {
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+      email: updates.email,
+      email_confirm: true // Auto-confirm the change
+    })
+    
+    if (authError) return { error: 'Auth update failed: ' + authError.message }
+  }
+
   const { error } = await supabase
     .from('profiles')
     .update(updates)
     .eq('id', id)
 
   if (error) return { error: error.message }
+  
   revalidatePath('/admin/employees')
   return { success: true }
 }
