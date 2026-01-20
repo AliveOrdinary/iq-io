@@ -5,6 +5,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar'
 const navItems = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/employees', label: 'Employees' },
+  { href: '/admin/calendar', label: 'Calendar' },
   { href: '/admin/reports', label: 'Payroll Reports' },
 ]
 

@@ -2,11 +2,16 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { updateSettings } from './actions'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { useToast } from '@/components/ui/Toast'
+import type { Geofence } from '@/components/super-admin/GeofenceMap'
+
+// Lazy load GeofenceMap to avoid SSR issues with Leaflet
+const GeofenceMap = lazy(() => import('@/components/super-admin/GeofenceMap'))
 
 export default function SettingsPage() {
-  const [geoValue, setGeoValue] = useState({ lat: 43.8219, lng: -79.6200, radius: 100 })
+  const [geoValue, setGeoValue] = useState<Geofence>({ lat: 43.8219, lng: -79.6200, radius: 100 })
+  const [clockInWindow, setClockInWindow] = useState({ start: "06:50", end: "13:00" })
   const [hourValue, setHourValue] = useState({ start: "07:00", end: "15:00", days: [1,2,3,4,5] })
   const supabase = createClient()
   const { showToast } = useToast()
@@ -14,51 +19,83 @@ export default function SettingsPage() {
   useEffect(() => {
     async function fetchData() {
       const { data: geofence } = await supabase.from('settings').select('value').eq('key', 'geofence').single()
+      const { data: clockIn } = await supabase.from('settings').select('value').eq('key', 'clock_in_window').single()
       const { data: workHours } = await supabase.from('settings').select('value').eq('key', 'work_hours').single()
       
-      if (geofence?.value) setGeoValue(geofence.value as any)
+      if (geofence?.value) setGeoValue(geofence.value as Geofence)
+      if (clockIn?.value) setClockInWindow(clockIn.value as any)
       if (workHours?.value) setHourValue(workHours.value as any)
     }
     fetchData()
   }, [])
 
+  const handleGeofenceChange = async (newGeofence: Geofence) => {
+    setGeoValue(newGeofence)
+  }
+
+  const handleSaveGeofence = async () => {
+    await updateSettings('geofence', geoValue)
+    showToast('Geofence updated', 'success')
+  }
+
   return (
     <div className="space-y-8">
       <header>
         <h2 className="text-xl font-semibold text-white">Settings</h2>
-        <p className="text-[#666] text-sm mt-0.5">Configure geofencing and shift schedules</p>
+        <p className="text-[#666] text-sm mt-0.5">Configure geofencing, clock-in window, and shift schedules</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Geofence Settings */}
+        <div className="card p-6 space-y-4 lg:col-span-2">
+          <h3 className="font-medium text-white">Geofence Area</h3>
+          <p className="text-sm text-[#666]">
+            Define the area where employees can clock in. Draw a polygon around your building or use a circle with radius.
+          </p>
+          
+          <Suspense fallback={
+            <div className="h-64 w-full bg-[#111] rounded border border-[#333] flex items-center justify-center text-[#666]">
+              Loading map...
+            </div>
+          }>
+            <GeofenceMap value={geoValue} onChange={handleGeofenceChange} />
+          </Suspense>
+
+          <button 
+            onClick={handleSaveGeofence}
+            className="w-full btn btn-primary"
+          >
+            Save Geofence
+          </button>
+        </div>
+
+        {/* Clock-In Window Settings */}
         <div className="card p-6 space-y-4">
-          <h3 className="font-medium text-white">Geofence</h3>
+          <h3 className="font-medium text-white">Clock-In Window</h3>
+          <p className="text-sm text-[#666]">
+            Employees can only clock in during this time window.
+          </p>
 
           <form action={async (formData) => {
             const value = {
-              lat: parseFloat(formData.get('lat') as string),
-              lng: parseFloat(formData.get('lng') as string),
-              radius: parseInt(formData.get('radius') as string)
+              start: formData.get('start'),
+              end: formData.get('end'),
             }
-            await updateSettings('geofence', value)
-            showToast('Geofence updated', 'success')
+            await updateSettings('clock_in_window', value)
+            showToast('Clock-in window updated', 'success')
           }} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-[#666] mb-1.5">Latitude</label>
-                <input name="lat" type="number" step="any" defaultValue={geoValue.lat} className="w-full" />
+                <label className="block text-xs text-[#666] mb-1.5">Window Start</label>
+                <input name="start" type="time" defaultValue={clockInWindow.start} className="w-full" />
               </div>
               <div>
-                <label className="block text-xs text-[#666] mb-1.5">Longitude</label>
-                <input name="lng" type="number" step="any" defaultValue={geoValue.lng} className="w-full" />
+                <label className="block text-xs text-[#666] mb-1.5">Window End</label>
+                <input name="end" type="time" defaultValue={clockInWindow.end} className="w-full" />
               </div>
             </div>
-            <div>
-              <label className="block text-xs text-[#666] mb-1.5">Radius (meters)</label>
-              <input name="radius" type="number" defaultValue={geoValue.radius} className="w-full" />
-            </div>
             <button type="submit" className="w-full btn btn-primary">
-              Update Geofence
+              Update Clock-In Window
             </button>
           </form>
         </div>
@@ -66,6 +103,9 @@ export default function SettingsPage() {
         {/* Shift Settings */}
         <div className="card p-6 space-y-4">
           <h3 className="font-medium text-white">Work Hours</h3>
+          <p className="text-sm text-[#666]">
+            Standard work hours for payroll calculations.
+          </p>
 
           <form action={async (formData) => {
             const value = {

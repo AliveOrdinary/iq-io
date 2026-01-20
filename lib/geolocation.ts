@@ -17,3 +17,29 @@ export function calculateDistance(coord1: Coordinates, coord2: Coordinates): num
 
   return R * c // Distance in meters
 }
+
+/**
+ * Ray-casting algorithm to check if a point is inside a polygon
+ * @param point - The point to check (latitude, longitude)
+ * @param polygon - Array of [longitude, latitude] pairs (GeoJSON format)
+ */
+export function isPointInPolygon(
+  point: Coordinates,
+  polygon: [number, number][]
+): boolean {
+  const x = point.longitude
+  const y = point.latitude
+  let inside = false
+  
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1]
+    const xj = polygon[j][0], yj = polygon[j][1]
+    
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+      inside = !inside
+    }
+  }
+  
+  return inside
+}
+
