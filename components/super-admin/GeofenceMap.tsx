@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import 'leaflet/dist/leaflet.css'
 import type L from 'leaflet'
 
 type GeofenceType = 'circle' | 'polygon'
@@ -58,7 +59,6 @@ export default function GeofenceMap({ value, onChange }: GeofenceMapProps) {
 
     const initMap = async () => {
       const L = (await import('leaflet')).default
-      await import('leaflet/dist/leaflet.css')
       
       leafletRef.current = L
       
@@ -101,7 +101,7 @@ export default function GeofenceMap({ value, onChange }: GeofenceMapProps) {
     }
   }, [])
 
-  const drawGeofence = (geofence: Geofence, L: typeof import('leaflet').default) => {
+  const drawGeofence = (geofence: Geofence, L: any) => {
     if (!mapRef.current) return
     
     // Remove existing layer
