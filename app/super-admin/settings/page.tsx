@@ -9,10 +9,22 @@ import type { Geofence } from '@/components/super-admin/GeofenceMap'
 // Lazy load GeofenceMap to avoid SSR issues with Leaflet
 const GeofenceMap = lazy(() => import('@/components/super-admin/GeofenceMap'))
 
+type PayrollSchedule = {
+  anchor_date: string
+  enabled: boolean
+}
+
+type AdminRecipient = {
+  email: string
+  name: string | null
+}
+
 export default function SettingsPage() {
   const [geoValue, setGeoValue] = useState<Geofence>({ lat: 43.8219, lng: -79.6200, radius: 100 })
   const [clockInWindow, setClockInWindow] = useState({ start: "06:50", end: "13:00" })
   const [hourValue, setHourValue] = useState({ start: "07:00", end: "15:00", days: [1,2,3,4,5] })
+  const [payrollSchedule, setPayrollSchedule] = useState<PayrollSchedule>({ anchor_date: '', enabled: false })
+  const [adminRecipients, setAdminRecipients] = useState<AdminRecipient[]>([])
   const supabase = createClient()
   const { showToast } = useToast()
 
@@ -21,10 +33,14 @@ export default function SettingsPage() {
       const { data: geofence } = await supabase.from('settings').select('value').eq('key', 'geofence').single()
       const { data: clockIn } = await supabase.from('settings').select('value').eq('key', 'clock_in_window').single()
       const { data: workHours } = await supabase.from('settings').select('value').eq('key', 'work_hours').single()
+      const { data: payroll } = await supabase.from('settings').select('value').eq('key', 'payroll_schedule').single()
+      const { data: admins } = await supabase.from('profiles').select('email, name').in('role', ['admin', 'super_admin'])
       
       if (geofence?.value) setGeoValue(geofence.value as Geofence)
       if (clockIn?.value) setClockInWindow(clockIn.value as any)
       if (workHours?.value) setHourValue(workHours.value as any)
+      if (payroll?.value) setPayrollSchedule(payroll.value as PayrollSchedule)
+      if (admins) setAdminRecipients(admins as AdminRecipient[])
     }
     fetchData()
   }, [])
@@ -131,6 +147,60 @@ export default function SettingsPage() {
               </div>
               <button type="submit" className="w-full btn btn-secondary">
                 Update Schedule
+              </button>
+            </form>
+          </div>
+
+          {/* Payroll Schedule Settings */}
+          <div className="card p-6 space-y-4">
+            <h3 className="font-medium text-white">Payroll Schedule</h3>
+            <p className="text-sm text-[#666]">
+              Configure bi-weekly payroll report emails.
+            </p>
+
+            <form action={async (formData) => {
+              const value = {
+                anchor_date: formData.get('anchor_date'),
+                enabled: formData.get('enabled') === 'on',
+              }
+              await updateSettings('payroll_schedule', value)
+              setPayrollSchedule(value as PayrollSchedule)
+              showToast('Payroll schedule updated', 'success')
+            }} className="space-y-3">
+              <div>
+                <label className="block text-xs text-[#666] mb-1.5">Pay Period Start (Monday)</label>
+                <input 
+                  name="anchor_date" 
+                  type="date" 
+                  defaultValue={payrollSchedule.anchor_date}
+                  className="w-full" 
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input 
+                  name="enabled" 
+                  type="checkbox" 
+                  id="payroll-enabled"
+                  defaultChecked={payrollSchedule.enabled}
+                  className="w-4 h-4" 
+                />
+                <label htmlFor="payroll-enabled" className="text-sm text-[#999]">Enable bi-weekly emails</label>
+              </div>
+              
+              {/* Admin Recipients (read-only) */}
+              <div className="pt-2 border-t border-[#222]">
+                <p className="text-xs text-[#666] mb-2">Recipients (auto from admin roles):</p>
+                <div className="space-y-1">
+                  {adminRecipients.map(admin => (
+                    <div key={admin.email} className="text-xs text-[#999]">
+                      {admin.name || admin.email}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" className="w-full btn btn-secondary">
+                Update Payroll Schedule
               </button>
             </form>
           </div>
