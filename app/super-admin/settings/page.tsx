@@ -45,20 +45,21 @@ export default function SettingsPage() {
         <p className="text-[#666] text-sm mt-0.5">Configure geofencing, clock-in window, and shift schedules</p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Geofence Settings */}
-        <div className="card p-6 space-y-4 lg:col-span-2">
+      {/* Desktop: Side by side layout - Map on left, settings on right */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Geofence Settings - Takes up 2 columns on XL screens */}
+        <div className="card p-6 space-y-4 xl:col-span-2">
           <h3 className="font-medium text-white">Geofence Area</h3>
           <p className="text-sm text-[#666]">
             Define the area where employees can clock in. Draw a polygon around your building or use a circle with radius.
           </p>
           
           <Suspense fallback={
-            <div className="h-64 w-full bg-[#111] rounded border border-[#333] flex items-center justify-center text-[#666]">
+            <div className="h-[500px] w-full bg-[#111] rounded border border-[#333] flex items-center justify-center text-[#666]">
               Loading map...
             </div>
           }>
-            <GeofenceMap value={geoValue} onChange={handleGeofenceChange} />
+            <GeofenceMapLarge value={geoValue} onChange={handleGeofenceChange} />
           </Suspense>
 
           <button 
@@ -69,69 +70,94 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        {/* Clock-In Window Settings */}
-        <div className="card p-6 space-y-4">
-          <h3 className="font-medium text-white">Clock-In Window</h3>
-          <p className="text-sm text-[#666]">
-            Employees can only clock in during this time window.
-          </p>
+        {/* Right sidebar for time settings */}
+        <div className="space-y-6">
+          {/* Clock-In Window Settings */}
+          <div className="card p-6 space-y-4">
+            <h3 className="font-medium text-white">Clock-In Window</h3>
+            <p className="text-sm text-[#666]">
+              Employees can only clock in during this time window.
+            </p>
 
-          <form action={async (formData) => {
-            const value = {
-              start: formData.get('start'),
-              end: formData.get('end'),
-            }
-            await updateSettings('clock_in_window', value)
-            showToast('Clock-in window updated', 'success')
-          }} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-[#666] mb-1.5">Window Start</label>
-                <input name="start" type="time" defaultValue={clockInWindow.start} className="w-full" />
+            <form action={async (formData) => {
+              const value = {
+                start: formData.get('start'),
+                end: formData.get('end'),
+              }
+              await updateSettings('clock_in_window', value)
+              showToast('Clock-in window updated', 'success')
+            }} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#666] mb-1.5">Window Start</label>
+                  <input name="start" type="time" defaultValue={clockInWindow.start} className="w-full" />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#666] mb-1.5">Window End</label>
+                  <input name="end" type="time" defaultValue={clockInWindow.end} className="w-full" />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs text-[#666] mb-1.5">Window End</label>
-                <input name="end" type="time" defaultValue={clockInWindow.end} className="w-full" />
-              </div>
-            </div>
-            <button type="submit" className="w-full btn btn-primary">
-              Update Clock-In Window
-            </button>
-          </form>
-        </div>
+              <button type="submit" className="w-full btn btn-primary">
+                Update Clock-In Window
+              </button>
+            </form>
+          </div>
 
-        {/* Shift Settings */}
-        <div className="card p-6 space-y-4">
-          <h3 className="font-medium text-white">Work Hours</h3>
-          <p className="text-sm text-[#666]">
-            Standard work hours for payroll calculations.
-          </p>
+          {/* Shift Settings */}
+          <div className="card p-6 space-y-4">
+            <h3 className="font-medium text-white">Work Hours</h3>
+            <p className="text-sm text-[#666]">
+              Standard work hours for payroll calculations.
+            </p>
 
-          <form action={async (formData) => {
-            const value = {
-              start: formData.get('start'),
-              end: formData.get('end'),
-              days: hourValue.days
-            }
-            await updateSettings('work_hours', value)
-            showToast('Work hours updated', 'success')
-          }} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-[#666] mb-1.5">Shift Start</label>
-                <input name="start" type="time" defaultValue={hourValue.start} className="w-full" />
+            <form action={async (formData) => {
+              const value = {
+                start: formData.get('start'),
+                end: formData.get('end'),
+                days: hourValue.days
+              }
+              await updateSettings('work_hours', value)
+              showToast('Work hours updated', 'success')
+            }} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#666] mb-1.5">Shift Start</label>
+                  <input name="start" type="time" defaultValue={hourValue.start} className="w-full" />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#666] mb-1.5">Shift End</label>
+                  <input name="end" type="time" defaultValue={hourValue.end} className="w-full" />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs text-[#666] mb-1.5">Shift End</label>
-                <input name="end" type="time" defaultValue={hourValue.end} className="w-full" />
-              </div>
-            </div>
-            <button type="submit" className="w-full btn btn-secondary">
-              Update Schedule
-            </button>
-          </form>
+              <button type="submit" className="w-full btn btn-secondary">
+                Update Schedule
+              </button>
+            </form>
+          </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Wrapper component to render the map with larger height
+function GeofenceMapLarge({ value, onChange }: { value: Geofence, onChange: (g: Geofence) => void }) {
+  const GeofenceMap = lazy(() => import('@/components/super-admin/GeofenceMap'))
+  
+  return (
+    <div className="geofence-map-large">
+      <style jsx>{`
+        .geofence-map-large :global(.h-64) {
+          height: 500px !important;
+        }
+      `}</style>
+      <Suspense fallback={
+        <div className="h-[500px] w-full bg-[#111] rounded border border-[#333] flex items-center justify-center text-[#666]">
+          Loading map...
+        </div>
+      }>
+        <GeofenceMap value={value} onChange={onChange} />
+      </Suspense>
     </div>
   )
 }

@@ -15,6 +15,7 @@ export type Database = {
           created_by: string | null
           date: string
           id: string
+          is_active: boolean
           name: string
           type: string
         }
@@ -23,6 +24,7 @@ export type Database = {
           created_by?: string | null
           date: string
           id?: string
+          is_active?: boolean
           name: string
           type: string
         }
@@ -31,6 +33,7 @@ export type Database = {
           created_by?: string | null
           date?: string
           id?: string
+          is_active?: boolean
           name?: string
           type?: string
         }

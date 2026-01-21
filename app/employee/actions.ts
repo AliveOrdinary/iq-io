@@ -36,11 +36,29 @@ export async function clockIn(latitude: number, longitude: number) {
   })
   const todayDate = dateFormatter.format(now)
 
-  // Check if today is an off day
+  // Check if today is a weekend (Saturday = 6, Sunday = 0)
+  const dayOfWeek = now.getDay()
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    // Check if there's a weekend override making it a working day
+    const { data: weekendOverride } = await supabase
+      .from('off_days')
+      .select('id')
+      .eq('date', todayDate)
+      .eq('type', 'weekend_override')
+      .single()
+    
+    if (!weekendOverride) {
+      return { error: 'Cannot clock in on weekends' }
+    }
+  }
+
+  // Check if today is an off day (only if is_active is true)
   const { data: offDay } = await supabase
     .from('off_days')
-    .select('name')
+    .select('name, is_active')
     .eq('date', todayDate)
+    .eq('is_active', true)
+    .neq('type', 'weekend_override')
     .single()
 
   if (offDay) {
