@@ -36,10 +36,15 @@ export default async function EmployeeDashboard() {
     .eq('key', 'geofence')
     .single()
 
-  const geofence = (geofenceSetting?.value as { lat: number; lng: number; radius: number }) || {
-    lat: 43.8219,
-    lng: -79.6200,
-    radius: 100
+  // Normalize geofence to circle format { lat, lng, radius }
+  let geofence = { lat: 43.8219, lng: -79.6200, radius: 100 }
+  if (geofenceSetting?.value) {
+    const g = geofenceSetting.value as any
+    if (g.lat !== undefined && g.lng !== undefined) {
+      geofence = { lat: g.lat, lng: g.lng, radius: g.radius || 100 }
+    } else if (g.type === 'circle' && g.center) {
+      geofence = { lat: g.center[1], lng: g.center[0], radius: g.radius || 100 }
+    }
   }
 
   return (

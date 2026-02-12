@@ -26,7 +26,7 @@ export async function clockIn(latitude: number, longitude: number) {
     minute: '2-digit',
     hour12: false
   })
-  const currentTime = formatter.format(now)
+  const currentTime = formatter.format(now).replace(/\u202f/g, ' ').trim()
   
   const dateFormatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: COMPANY_TIMEZONE,
@@ -37,8 +37,15 @@ export async function clockIn(latitude: number, longitude: number) {
   const todayDate = dateFormatter.format(now)
 
   // Check if today is a weekend (Saturday = 6, Sunday = 0)
-  const dayOfWeek = now.getDay()
-  if (dayOfWeek === 0 || dayOfWeek === 6) {
+  // Use timezone-aware day check
+  const dayFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: COMPANY_TIMEZONE,
+    weekday: 'short'
+  })
+  const dayName = dayFormatter.format(now)
+  const isWeekend = dayName === 'Sat' || dayName === 'Sun'
+
+  if (isWeekend) {
     // Check if there's a weekend override making it a working day
     const { data: weekendOverride } = await supabase
       .from('off_days')
@@ -79,7 +86,7 @@ export async function clockIn(latitude: number, longitude: number) {
     }
   }
 
-  // Geofence validation
+  // Geofence validation — circle only (lat, lng, radius)
   const { data: geofenceSetting } = await supabase
     .from('settings')
     .select('value')
@@ -87,44 +94,20 @@ export async function clockIn(latitude: number, longitude: number) {
     .single()
 
   if (geofenceSetting?.value) {
-    const geofence = geofenceSetting.value as { 
-      lat?: number
-      lng?: number
-      radius?: number
-      type?: string
-      coordinates?: [number, number][]
-      center?: [number, number]
-    }
+    const geofence = geofenceSetting.value as { lat: number; lng: number; radius: number }
     
-    let isInsideGeofence = false
-    
-    if (geofence.type === 'polygon' && geofence.coordinates) {
-      // Point-in-polygon check
-      isInsideGeofence = isPointInPolygon(
-        { latitude, longitude },
-        geofence.coordinates
-      )
-    } else {
-      // Circle/radius check (existing logic)
-      const centerLat = geofence.lat ?? geofence.center?.[1]
-      const centerLng = geofence.lng ?? geofence.center?.[0]
-      const radius = geofence.radius ?? 100
+    if (geofence.lat !== undefined && geofence.lng !== undefined && geofence.radius !== undefined) {
+      const R = 6371e3 // Earth radius in meters
+      const phi1 = (latitude * Math.PI) / 180
+      const phi2 = (geofence.lat * Math.PI) / 180
+      const deltaPhi = ((geofence.lat - latitude) * Math.PI) / 180
+      const deltaLambda = ((geofence.lng - longitude) * Math.PI) / 180
+      const a = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2
+      const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       
-      if (centerLat !== undefined && centerLng !== undefined) {
-        const R = 6371e3
-        const phi1 = (latitude * Math.PI) / 180
-        const phi2 = (centerLat * Math.PI) / 180
-        const deltaPhi = ((centerLat - latitude) * Math.PI) / 180
-        const deltaLambda = ((centerLng - longitude) * Math.PI) / 180
-        const a = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2
-        const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        
-        isInsideGeofence = distance <= radius
+      if (distance > geofence.radius) {
+        return { error: `You are ${Math.round(distance)}m away. Must be within ${geofence.radius}m to clock in.` }
       }
-    }
-    
-    if (!isInsideGeofence) {
-      return { error: 'You must be within the designated area to clock in' }
     }
   }
 
@@ -139,27 +122,6 @@ export async function clockIn(latitude: number, longitude: number) {
 
   revalidatePath('/employee')
   return { success: true }
-}
-
-// Ray-casting algorithm for point-in-polygon check
-function isPointInPolygon(
-  point: { latitude: number; longitude: number },
-  polygon: [number, number][] // [lng, lat] pairs (GeoJSON format)
-): boolean {
-  const x = point.longitude
-  const y = point.latitude
-  let inside = false
-  
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const xi = polygon[i][0], yi = polygon[i][1]
-    const xj = polygon[j][0], yj = polygon[j][1]
-    
-    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
-      inside = !inside
-    }
-  }
-  
-  return inside
 }
 
 export async function clockOut(id: string) {
@@ -215,4 +177,3 @@ export async function clockOut(id: string) {
   revalidatePath('/employee')
   return { success: true }
 }
-
